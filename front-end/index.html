@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aether Rivals - Offline</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="loading-screen">
+        <div class="loading-title">AETHER RIVALS</div>
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <div class="loading-text" id="loading-text">Carregando jogo...</div>
+    </div>
+
+    <div id="main-menu">
+        <div class="top-bar">
+            <div class="logo-text">AETHER RIVALS</div>
+            <div class="currency-container">
+                <div class="currency-box">⚡ <span id="gems-count">150</span> GEMS</div>
+                <div class="currency-box">🪙 <span id="coins-count">1200</span> MOEDAS</div>
+            </div>
+        </div>
+
+        <div class="hero-display">
+            <div class="character-avatar" id="avatar-display">Vortex</div>
+            <div class="character-name" id="name-display">VORTEX</div>
+            <div class="character-class" id="class-display">Classe: Assalto</div>
+            <button class="btn-change-char" onclick="openModal('char-modal')">TROCAR PERSONAGEM</button>
+        </div>
+
+        <div class="bottom-bar">
+            <button class="btn-battle" onclick="startGame()">JOGAR</button>
+        </div>
+
+        <div class="menu-nav">
+            <button class="nav-btn" onclick="openModal('shop-modal')">🛒 LOJA</button>
+            <button class="nav-btn active">⚔️ BRAWLERS</button>
+            <button class="nav-btn" onclick="openModal('char-modal')">👤 PERSONAGENS</button>
+        </div>
+    </div>
+
+    <div id="char-modal" class="modal">
+        <div class="modal-content">
+            <h3>SELECIONE SEU PERSONAGEM</h3>
+            <div class="modal-grid">
+                <div class="char-card" onclick="selectCharacter('Vortex', '#3498db', 'Assalto')">
+                    <div style="color: #3498db; font-weight: bold;">Vortex</div>
+                    <small>Assalto</small>
+                </div>
+                <div class="char-card" onclick="selectCharacter('Aegis', '#2ecc71', 'Suporte / Defesa')">
+                    <div style="color: #2ecc71; font-weight: bold;">Aegis</div>
+                    <small>Defesa</small>
+                </div>
+                <div class="char-card" onclick="selectCharacter('Nyx', '#e74c3c', 'Reconhecimento')">
+                    <div style="color: #e74c3c; font-weight: bold;">Nyx</div>
+                    <small>Recon</small>
+                </div>
+            </div>
+            <button class="btn-close" onclick="closeModal('char-modal')">FECHAR</button>
+        </div>
+    </div>
+
+    <div id="shop-modal" class="modal">
+        <div class="modal-content">
+            <h3>LOJA DE AETHER</h3>
+            <div class="modal-grid">
+                <div class="shop-item" onclick="buyItem('Skin Cyber', 50)">
+                    <div><strong>Skin Cyber</strong></div>
+                    <small>⚡ 50 Gems</small>
+                </div>
+                <div class="shop-item" onclick="buyItem('Caixa Aether', 100)">
+                    <div><strong>Caixa Aether</strong></div>
+                    <small>🪙 100 Moedas</small>
+                </div>
+            </div>
+            <button class="btn-close" onclick="closeModal('shop-modal')">FECHAR</button>
+        </div>
+    </div>
+
+    <div id="game-screen">
+        <button class="btn-exit-game" onclick="exitGame()">SAIR DO JOGO</button>
+        <div class="canvas-wrapper">
+            <canvas id="gameCanvas" width="800" height="600"></canvas>
+            <div id="game-ui">
+                <div><strong>Arma Atual:</strong> <span id="current-weapon">Nenhuma</span></div>
+                <div><strong>Mochila:</strong> <span id="inventory-list">Vazia</span></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
