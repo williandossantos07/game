@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Desafio dos Craques do Futebol</title>
+  <style>
+    body {
+      background-color: #0f172a;
+      color: #fff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px 0;
+      user-select: none;
+    }
+    .card {
+      background-color: #1e293b;
+      border: 2px solid #38bdf8;
+      border-radius: 12px;
+      padding: 25px;
+      width: 420px;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      position: relative;
+    }
+    h1 {
+      color: #38bdf8;
+      font-size: 1.6rem;
+      margin-bottom: 5px;
+    }
+    .subtitle {
+      color: #94a3b8;
+      font-size: 0.85rem;
+      margin-bottom: 15px;
+    }
+
+    /* Tela de Abertura */
+    #splashScreen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 300px;
+    }
+    .loader {
+      border: 4px solid #334155;
+      border-top: 4px solid #38bdf8;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin-top: 20px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Menu de Seleção */
+    #modeMenu {
+      display: none;
+      flex-direction: column;
+      gap: 15px;
+      margin-top: 20px;
+    }
+    .mode-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+
+    /* Interface do Jogo */
+    #gameInterface {
+      display: none;
+    }
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+      font-weight: bold;
+    }
+    .timer-bar-container {
+      width: 100%;
+      height: 8px;
+      background-color: #334155;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 15px;
+    }
+    .timer-bar {
+      height: 100%;
+      width: 100%;
+      background-color: #facc15;
+      transition: width 0.1s linear;
+    }
+    .national-team {
+      font-size: 0.9rem;
+      color: #38bdf8;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .player-name {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #facc15;
+      margin: 5px 0 10px 0;
+    }
+    .question {
+      font-size: 0.95rem;
+      color: #e2e8f0;
+      margin-bottom: 15px;
+    }
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    button {
+      background-color: #334155;
+      color: #fff;
+      border: 1px solid #475569;
+      padding: 12px;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+    }
+    button:hover {
+      background-color: #475569;
+      border-color: #38bdf8;
+    }
+    #result-msg {
+      margin-top: 15px;
+      font-weight: bold;
+      min-height: 24px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <!-- 1. Tela de Entrada (5 Segundos) -->
+    <div id="splashScreen">
+      <h1>⚽ DESAFIO DOS CRAQUES</h1>
+      <p style="color: #94a3b8;">Carregando dados dos jogadores...</p>
+      <div class="loader"></div>
+    </div>
+
+    <!-- 2. Menu de Seleção de Modo -->
+    <div id="modeMenu">
+      <h1>SELEÇÃO DE MODO</h1>
+      <div class="subtitle">Escolha como deseja jogar:</div>
+      
+      <div class="mode-container">
+        <button onclick="startGame('infinite')">🔥 Modo Infinito (Clubes)</button>
+      </div>
+
+      <div class="mode-container">
+        <button onclick="startGame('champions')">🏆 Adivinhe o Campeão</button>
+      </div>
+    </div>
+
+    <!-- 3. Interface Principal do Jogo -->
+    <div id="gameInterface">
+      <div class="status-bar">
+        <span>Vidas: <span id="livesDisplay"></span></span>
+        <span id="levelContainer">Fase: <span id="levelDisplay" style="color:#facc15;">1</span></span>
+        <span>Pontos: <span id="scoreDisplay" style="color: #38bdf8;">0</span></span>
+      </div>
+
+      <div class="timer-bar-container">
+        <div id="timerBar" class="timer-bar"></div>
+      </div>
+
+      <div id="gameArea">
+        <div class="national-team" id="nationText">COMPETIÇÃO</div>
+        <div class="player-name" id="playerName">TÍTULO</div>
+        <div class="question" id="questionText">PERGUNTA</div>
+
+        <div class="options" id="optionsContainer"></div>
+      </div>
+
+      <div id="result-msg"></div>
+    </div>
+  </div>
+
+  <script>
+    // --- Banco de Dados: Modo Infinito (Clubes) ---
+    const infiniteData = [
+      { name: "Neymar Jr.", nation: "Brasil 🇧🇷", correctTeam: "FC Barcelona", teamOptions: ["Santos", "FC Barcelona", "Paris Saint-Germain"] },
+      { name: "Lionel Messi", nation: "Argentina 🇦🇷", correctTeam: "FC Barcelona", teamOptions: ["FC Barcelona", "Paris Saint-Germain", "Inter Miami"] },
+      { name: "Cristiano Ronaldo", nation: "Portugal 🇵🇹", correctTeam: "Real Madrid", teamOptions: ["Manchester United", "Real Madrid", "Juventus"] },
+      { name: "Ronaldinho Gaúcho", nation: "Brasil 🇧🇷", correctTeam: "FC Barcelona", teamOptions: ["AC Milan", "Flamengo", "FC Barcelona"] },
+      { name: "Kylian Mbappé", nation: "França 🇫🇷", correctTeam: "Paris Saint-Germain", teamOptions: ["Monaco", "Paris Saint-Germain", "Real Madrid"] },
+      { name: "Vinícius Jr.", nation: "Brasil 🇧🇷", correctTeam: "Real Madrid", teamOptions: ["Flamengo", "Real Madrid", "Chelsea"] },
+      { name: "Robert Lewandowski", nation: "Polônia 🇵🇱", correctTeam: "Bayern de Munique", teamOptions: ["Borussia Dortmund", "Bayern de Munique", "FC Barcelona"] },
+      { name: "Luis Suárez", nation: "Uruguai 🇺🇾", correctTeam: "FC Barcelona", teamOptions: ["Liverpool", "FC Barcelona", "Ajax"] },
+      { name: "Luka Modrić", nation: "Croácia 🇭🇷", correctTeam: "Real Madrid", teamOptions: ["Tottenham Hotspur", "Real Madrid", "Dinamo Zagreb"] },
+      { name: "Ángel Di María", nation: "Argentina 🇦🇷", correctTeam: "Paris Saint-Germain", options: ["Real Madrid", "Benfica", "Paris Saint-Germain"] }
+    ];
+
+    // --- Banco de Dados: Modo Adivinhe o Campeão ---
+    const championsData = [
+      // Copa do Mundo
+      {
+        title: "Copa do Mundo 🏆",
+        category: "MUNDIAL DE SELEÇÕES",
+        question: "Qual destes jogadores GANHOU a Copa do Mundo?",
+        correctPlayer: "Antoine Griezmann",
+        options: ["Antoine Griezmann", "Cristiano Ronaldo", "Luka Modrić"]
+      },
+      {
+        title: "Copa do Mundo 🏆",
+        category: "MUNDIAL DE SELEÇÕES",
+        question: "Qual destes jogadores GANHOU a Copa do Mundo?",
+        correctPlayer: "Alexis Mac Allister",
+        options: ["Alexis Mac Allister", "Luis Suárez", "Neymar Jr."]
+      },
+      {
+        title: "Copa do Mundo 🏆",
+        category: "MUNDIAL DE SELEÇÕES",
+        question: "Qual destes jogadores GANHOU a Copa do Mundo?",
+        correctPlayer: "Kaká",
+        options: ["Kaká", "Cristiano Ronaldo", "Robert Lewandowski"]
+      },
+      // Copa Libertadores
+      {
+        title: "Copa Libertadores 🌎",
+        category: "AMÉRICA DO SUL",
+        question: "Qual destes jogadores GANHOU a Libertadores?",
+        correctPlayer: "Gerson",
+        options: ["Gerson", "Richarlison", "Roberto Firmino"]
+      },
+      {
+        title: "Copa Libertadores 🌎",
+        category: "AMÉRICA DO SUL",
+        question: "Qual destes jogadores GANHOU a Libertadores?",
+        correctPlayer: "Marcelo",
+        options: ["Marcelo", "Thiago Silva", "Dani Alves"]
+      },
+      {
+        title: "Copa Libertadores 🌎",
+        category: "AMÉRICA DO SUL",
+        question: "Qual destes jogadores GANHOU a Libertadores?",
+        correctPlayer: "Gabriel Barbosa",
+        options: ["Gabriel Barbosa", "Hulk", "Endrick"]
+      },
+      // Copa do Brasil
+      {
+        title: "Copa do Brasil 🇧🇷",
+        category: "FUTEBOL NACIONAL",
+        question: "Qual destes jogadores GANHOU a Copa do Brasil?",
+        correctPlayer: "Giorgian De Arrascaeta",
+        options: ["Giorgian De Arrascaeta", "Gustavo Gómez", "Germán Cano"]
+      },
+      {
+        title: "Copa do Brasil 🇧🇷",
+        category: "FUTEBOL NACIONAL",
+        question: "Qual destes jogadores GANHOU a Copa do Brasil?",
+        correctPlayer: "Cássio",
+        options: ["Cássio", "Rogério Ceni", "Sérgio Rochet"]
+      },
+      // Champions League
+      {
+        title: "Champions League ⭐",
+        category: "FUTEBOL EUROPEU",
+        question: "Qual destes jogadores GANHOU a Champions League?",
+        correctPlayer: "Rodrygo",
+        options: ["Rodrygo", "Kylian Mbappé", "Harry Kane"]
+      },
+      {
+        title: "Champions League ⭐",
+        category: "FUTEBOL EUROPEU",
+        question: "Qual destes jogadores GANHOU a Champions League?",
+        correctPlayer: "Erling Haaland",
+        options: ["Erling Haaland", "Zlatan Ibrahimović", "Gianluigi Buffon"]
+      }
+    ];
+
+    let currentMode = '';
+    let availableQuestions = [];
+    let currentQuestion = null;
+    let score = 0;
+    let lives = 3;
+    let level = 1;
+    let timer = null;
+    let timeLimit = 15;
+
+    function shuffle(array) {
+      return array.sort(() => Math.random() - 0.5);
+    }
+
+    // Tela de Entrada (5 Segundos)
+    setTimeout(() => {
+      document.getElementById("splashScreen").style.display = "none";
+      document.getElementById("modeMenu").style.display = "flex";
+    }, 5000);
+
+    function startGame(mode) {
+      currentMode = mode;
+      score = 0;
+      level = 1;
+
+      if (mode === 'infinite') {
+        lives = 3;
+        timeLimit = 15;
+        availableQuestions = shuffle([...infiniteData]);
+        document.getElementById("levelContainer").style.display = "inline";
+      } else if (mode === 'champions') {
+        lives = 5;
+        timeLimit = 10;
+        availableQuestions = shuffle([...championsData]);
+        document.getElementById("levelContainer").style.display = "none";
+      }
+
+      document.getElementById("modeMenu").style.display = "none";
+      document.getElementById("gameInterface").style.display = "block";
+      document.getElementById("scoreDisplay").textContent = score;
+
+      updateLivesDisplay();
+      loadNextQuestion();
+    }
+
+    function updateLivesDisplay() {
+      document.getElementById("livesDisplay").textContent = "❤️".repeat(Math.max(0, lives)) || "💀";
+    }
+
+    function startTimer() {
+      clearInterval(timer);
+      const timerBar = document.getElementById("timerBar");
+      timerBar.style.width = "100%";
+
+      const interval = 100;
+      const totalTicks = (timeLimit * 1000) / interval;
+      let ticks = 0;
+
+      timer = setInterval(() => {
+        ticks++;
+        const percentage = 100 - (ticks / totalTicks) * 100;
+        timerBar.style.width = Math.max(0, percentage) + "%";
+
+        if (ticks >= totalTicks) {
+          clearInterval(timer);
+          handleTimeout();
+        }
+      }, interval);
+    }
+
+    function handleTimeout() {
+      lives--;
+      updateLivesDisplay();
+      const resultMsg = document.getElementById("result-msg");
+      resultMsg.textContent = "Tempo esgotado! Perdeu 1 vida.";
+      resultMsg.style.color = "#f87171";
+
+      if (lives <= 0) {
+        gameOver();
+      } else {
+        setTimeout(loadNextQuestion, 1200);
+      }
+    }
+
+    function loadNextQuestion() {
+      const resultMsg = document.getElementById("result-msg");
+      resultMsg.textContent = "";
+
+      if (availableQuestions.length === 0) {
+        if (currentMode === 'infinite') {
+          availableQuestions = shuffle([...infiniteData]);
+        } else {
+          gameWin();
+          return;
+        }
+      }
+
+      currentQuestion = availableQuestions.pop();
+
+      const optionsContainer = document.getElementById("optionsContainer");
+      optionsContainer.innerHTML = "";
+
+      let options = [];
+      let correctAnswer = "";
+
+      if (currentMode === 'infinite') {
+        level = Math.floor(score / 30) + 1;
+        document.getElementById("levelDisplay").textContent = level;
+        timeLimit = Math.max(5, 15 - (level - 1) * 1);
+
+        document.getElementById("nationText").textContent = currentQuestion.nation;
+        document.getElementById("playerName").textContent = currentQuestion.name;
+        document.getElementById("questionText").textContent = "Selecione o clube onde ele jogou mais vezes:";
+        
+        options = shuffle([...currentQuestion.teamOptions]);
+        correctAnswer = currentQuestion.correctTeam;
+      } else {
+        document.getElementById("nationText").textContent = currentQuestion.category;
+        document.getElementById("playerName").textContent = currentQuestion.title;
+        document.getElementById("questionText").textContent = currentQuestion.question;
+
+        options = shuffle([...currentQuestion.options]);
+        correctAnswer = currentQuestion.correctPlayer;
+      }
+
+      options.forEach(option => {
+        const btn = document.createElement("button");
+        btn.textContent = option;
+        btn.onclick = () => checkAnswer(option, correctAnswer);
+        optionsContainer.appendChild(btn);
+      });
+
+      startTimer();
+    }
+
+    function checkAnswer(selectedOption, correctAnswer) {
+      clearInterval(timer);
+      const resultMsg = document.getElementById("result-msg");
+
+      if (selectedOption === correctAnswer) {
+        score += 10;
+        document.getElementById("scoreDisplay").textContent = score;
+        resultMsg.textContent = "Acertou! Avançando...";
+        resultMsg.style.color = "#4ade80";
+
+        setTimeout(loadNextQuestion, 1000);
+      } else {
+        lives--;
+        updateLivesDisplay();
+
+        if (lives <= 0) {
+          gameOver();
+        } else {
+          resultMsg.textContent = "Errou! Perdeu 1 vida.";
+          resultMsg.style.color = "#f87171";
+          setTimeout(loadNextQuestion, 1200);
+        }
+      }
+    }
+
+    function gameOver() {
+      clearInterval(timer);
+      document.getElementById("gameArea").innerHTML = `
+        <h2 style="color: #f87171; margin-bottom: 5px;">FIM DE JOGO</h2>
+        <p style="margin-bottom: 20px;">Sua Pontuação Final: <strong>${score} Pts</strong></p>
+        <button onclick="returnToMenu()">Voltar ao Menu</button>
+      `;
+    }
+
+    function gameWin() {
+      clearInterval(timer);
+      document.getElementById("gameArea").innerHTML = `
+        <h2 style="color: #4ade80; margin-bottom: 5px;">PARABÉNS!</h2>
+        <p style="margin-bottom: 20px;">Você respondeu a todas as perguntas!<br>Pontuação: <strong>${score} Pts</strong></p>
+        <button onclick="returnToMenu()">Voltar ao Menu</button>
+      `;
+    }
+
+    function returnToMenu() {
+      location.reload();
+    }
+  </script>
+</body>
+</html>
