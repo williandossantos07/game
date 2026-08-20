@@ -74,7 +74,7 @@
       width: 100%;
     }
 
-    /* Interface do Jogo */
+    /* Interface do Jogo Quinta */
     #gameInterface {
       display: none;
     }
@@ -142,12 +142,58 @@
       font-weight: bold;
       min-height: 24px;
     }
+
+    /* --- CAMPO DE FUTEBOL E PÊNALTIS --- */
+    #penaltyField {
+      display: none;
+      position: relative;
+      width: 100%;
+      height: 240px;
+      background: linear-gradient(to bottom, #15803d, #166534);
+      border: 3px solid #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 15px;
+    }
+    .goal-post {
+      position: absolute;
+      top: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 220px;
+      height: 90px;
+      border: 5px solid #fff;
+      border-bottom: none;
+      background: rgba(255, 255, 255, 0.15);
+    }
+    .goalkeeper {
+      position: absolute;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 2.5rem;
+      transition: all 0.4s ease-out;
+    }
+    .ball {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 2rem;
+      transition: all 0.4s ease-out;
+    }
+
+    /* Animações das direções */
+    .pos-left { left: 20% !important; }
+    .pos-center { left: 50% !important; }
+    .pos-right { left: 80% !important; }
+    .ball-shot { top: 35px !important; }
   </style>
 </head>
 <body>
 
   <div class="card">
-    <!-- 1. Tela de Entrada (5 Segundos) -->
+    <!-- 1. Tela de Entrada -->
     <div id="splashScreen">
       <h1>⚽ DESAFIO DOS CRAQUES</h1>
       <p style="color: #94a3b8;">Carregando dados dos jogadores...</p>
@@ -166,6 +212,10 @@
       <div class="mode-container">
         <button onclick="startGame('champions')">🏆 Adivinhe o Campeão</button>
       </div>
+
+      <div class="mode-container">
+        <button onclick="startGame('penalty')">🧤 Disputa de Pênaltis</button>
+      </div>
     </div>
 
     <!-- 3. Interface Principal do Jogo -->
@@ -176,8 +226,15 @@
         <span>Pontos: <span id="scoreDisplay" style="color: #38bdf8;">0</span></span>
       </div>
 
-      <div class="timer-bar-container">
+      <div class="timer-bar-container" id="timerContainer">
         <div id="timerBar" class="timer-bar"></div>
+      </div>
+
+      <!-- Arena de Pênaltis em CSS -->
+      <div id="penaltyField">
+        <div class="goal-post"></div>
+        <div id="goalkeeper" class="goalkeeper">🧤</div>
+        <div id="ball" class="ball">⚽</div>
       </div>
 
       <div id="gameArea">
@@ -193,7 +250,6 @@
   </div>
 
   <script>
-    // --- Banco de Dados: Modo Infinito (Clubes) ---
     const infiniteData = [
       { name: "Neymar Jr.", nation: "Brasil 🇧🇷", correctTeam: "FC Barcelona", teamOptions: ["Santos", "FC Barcelona", "Paris Saint-Germain"] },
       { name: "Lionel Messi", nation: "Argentina 🇦🇷", correctTeam: "FC Barcelona", teamOptions: ["FC Barcelona", "Paris Saint-Germain", "Inter Miami"] },
@@ -204,85 +260,20 @@
       { name: "Robert Lewandowski", nation: "Polônia 🇵🇱", correctTeam: "Bayern de Munique", teamOptions: ["Borussia Dortmund", "Bayern de Munique", "FC Barcelona"] },
       { name: "Luis Suárez", nation: "Uruguai 🇺🇾", correctTeam: "FC Barcelona", teamOptions: ["Liverpool", "FC Barcelona", "Ajax"] },
       { name: "Luka Modrić", nation: "Croácia 🇭🇷", correctTeam: "Real Madrid", teamOptions: ["Tottenham Hotspur", "Real Madrid", "Dinamo Zagreb"] },
-      { name: "Ángel Di María", nation: "Argentina 🇦🇷", correctTeam: "Paris Saint-Germain", options: ["Real Madrid", "Benfica", "Paris Saint-Germain"] }
+      { name: "Ángel Di María", nation: "Argentina 🇦🇷", correctTeam: "Paris Saint-Germain", teamOptions: ["Real Madrid", "Benfica", "Paris Saint-Germain"] }
     ];
 
-    // --- Banco de Dados: Modo Adivinhe o Campeão ---
     const championsData = [
-      // Copa do Mundo
-      {
-        title: "Copa do Mundo 🏆",
-        category: "MUNDIAL DE SELEÇÕES",
-        question: "Qual destes jogadores GANHOU a Copa do Mundo?",
-        correctPlayer: "Antoine Griezmann",
-        options: ["Antoine Griezmann", "Cristiano Ronaldo", "Luka Modrić"]
-      },
-      {
-        title: "Copa do Mundo 🏆",
-        category: "MUNDIAL DE SELEÇÕES",
-        question: "Qual destes jogadores GANHOU a Copa do Mundo?",
-        correctPlayer: "Alexis Mac Allister",
-        options: ["Alexis Mac Allister", "Luis Suárez", "Neymar Jr."]
-      },
-      {
-        title: "Copa do Mundo 🏆",
-        category: "MUNDIAL DE SELEÇÕES",
-        question: "Qual destes jogadores GANHOU a Copa do Mundo?",
-        correctPlayer: "Kaká",
-        options: ["Kaká", "Cristiano Ronaldo", "Robert Lewandowski"]
-      },
-      // Copa Libertadores
-      {
-        title: "Copa Libertadores 🌎",
-        category: "AMÉRICA DO SUL",
-        question: "Qual destes jogadores GANHOU a Libertadores?",
-        correctPlayer: "Gerson",
-        options: ["Gerson", "Richarlison", "Roberto Firmino"]
-      },
-      {
-        title: "Copa Libertadores 🌎",
-        category: "AMÉRICA DO SUL",
-        question: "Qual destes jogadores GANHOU a Libertadores?",
-        correctPlayer: "Marcelo",
-        options: ["Marcelo", "Thiago Silva", "Dani Alves"]
-      },
-      {
-        title: "Copa Libertadores 🌎",
-        category: "AMÉRICA DO SUL",
-        question: "Qual destes jogadores GANHOU a Libertadores?",
-        correctPlayer: "Gabriel Barbosa",
-        options: ["Gabriel Barbosa", "Hulk", "Endrick"]
-      },
-      // Copa do Brasil
-      {
-        title: "Copa do Brasil 🇧🇷",
-        category: "FUTEBOL NACIONAL",
-        question: "Qual destes jogadores GANHOU a Copa do Brasil?",
-        correctPlayer: "Giorgian De Arrascaeta",
-        options: ["Giorgian De Arrascaeta", "Gustavo Gómez", "Germán Cano"]
-      },
-      {
-        title: "Copa do Brasil 🇧🇷",
-        category: "FUTEBOL NACIONAL",
-        question: "Qual destes jogadores GANHOU a Copa do Brasil?",
-        correctPlayer: "Cássio",
-        options: ["Cássio", "Rogério Ceni", "Sérgio Rochet"]
-      },
-      // Champions League
-      {
-        title: "Champions League ⭐",
-        category: "FUTEBOL EUROPEU",
-        question: "Qual destes jogadores GANHOU a Champions League?",
-        correctPlayer: "Rodrygo",
-        options: ["Rodrygo", "Kylian Mbappé", "Harry Kane"]
-      },
-      {
-        title: "Champions League ⭐",
-        category: "FUTEBOL EUROPEU",
-        question: "Qual destes jogadores GANHOU a Champions League?",
-        correctPlayer: "Erling Haaland",
-        options: ["Erling Haaland", "Zlatan Ibrahimović", "Gianluigi Buffon"]
-      }
+      { title: "Copa do Mundo 🏆", category: "MUNDIAL DE SELEÇÕES", question: "Qual destes jogadores GANHOU a Copa do Mundo?", correctPlayer: "Antoine Griezmann", options: ["Antoine Griezmann", "Cristiano Ronaldo", "Luka Modrić"] },
+      { title: "Copa do Mundo 🏆", category: "MUNDIAL DE SELEÇÕES", question: "Qual destes jogadores GANHOU a Copa do Mundo?", correctPlayer: "Alexis Mac Allister", options: ["Alexis Mac Allister", "Luis Suárez", "Neymar Jr."] },
+      { title: "Copa do Mundo 🏆", category: "MUNDIAL DE SELEÇÕES", question: "Qual destes jogadores GANHOU a Copa do Mundo?", correctPlayer: "Kaká", options: ["Kaká", "Cristiano Ronaldo", "Robert Lewandowski"] },
+      { title: "Copa Libertadores 🌎", category: "AMÉRICA DO SUL", question: "Qual destes jogadores GANHOU a Libertadores?", correctPlayer: "Gerson", options: ["Gerson", "Richarlison", "Roberto Firmino"] },
+      { title: "Copa Libertadores 🌎", category: "AMÉRICA DO SUL", question: "Qual destes jogadores GANHOU a Libertadores?", correctPlayer: "Marcelo", options: ["Marcelo", "Thiago Silva", "Dani Alves"] },
+      { title: "Copa Libertadores 🌎", category: "AMÉRICA DO SUL", question: "Qual destes jogadores GANHOU a Libertadores?", correctPlayer: "Gabriel Barbosa", options: ["Gabriel Barbosa", "Hulk", "Endrick"] },
+      { title: "Copa do Brasil 🇧🇷", category: "FUTEBOL NACIONAL", question: "Qual destes jogadores GANHOU a Copa do Brasil?", correctPlayer: "Giorgian De Arrascaeta", options: ["Giorgian De Arrascaeta", "Gustavo Gómez", "Germán Cano"] },
+      { title: "Copa do Brasil 🇧🇷", category: "FUTEBOL NACIONAL", question: "Qual destes jogadores GANHOU a Copa do Brasil?", correctPlayer: "Cássio", options: ["Cássio", "Rogério Ceni", "Sérgio Rochet"] },
+      { title: "Champions League ⭐", category: "FUTEBOL EUROPEU", question: "Qual destes jogadores GANHOU a Champions League?", correctPlayer: "Rodrygo", options: ["Rodrygo", "Kylian Mbappé", "Harry Kane"] },
+      { title: "Champions League ⭐", category: "FUTEBOL EUROPEU", question: "Qual destes jogadores GANHOU a Champions League?", correctPlayer: "Erling Haaland", options: ["Erling Haaland", "Zlatan Ibrahimović", "Gianluigi Buffon"] }
     ];
 
     let currentMode = '';
@@ -293,12 +284,12 @@
     let level = 1;
     let timer = null;
     let timeLimit = 15;
+    let penaltyPhase = 'kicker'; // 'kicker' ou 'keeper'
 
     function shuffle(array) {
       return array.sort(() => Math.random() - 0.5);
     }
 
-    // Tela de Entrada (5 Segundos)
     setTimeout(() => {
       document.getElementById("splashScreen").style.display = "none";
       document.getElementById("modeMenu").style.display = "flex";
@@ -308,6 +299,9 @@
       currentMode = mode;
       score = 0;
       level = 1;
+
+      document.getElementById("penaltyField").style.display = "none";
+      document.getElementById("timerContainer").style.display = "block";
 
       if (mode === 'infinite') {
         lives = 3;
@@ -319,6 +313,11 @@
         timeLimit = 10;
         availableQuestions = shuffle([...championsData]);
         document.getElementById("levelContainer").style.display = "none";
+      } else if (mode === 'penalty') {
+        lives = 3;
+        document.getElementById("penaltyField").style.display = "block";
+        document.getElementById("timerContainer").style.display = "none";
+        document.getElementById("levelContainer").style.display = "none";
       }
 
       document.getElementById("modeMenu").style.display = "none";
@@ -326,7 +325,13 @@
       document.getElementById("scoreDisplay").textContent = score;
 
       updateLivesDisplay();
-      loadNextQuestion();
+
+      if (mode === 'penalty') {
+        window.addEventListener('keydown', handleKeyDefend);
+        setupPenaltyRound();
+      } else {
+        loadNextQuestion();
+      }
     }
 
     function updateLivesDisplay() {
@@ -382,7 +387,6 @@
       }
 
       currentQuestion = availableQuestions.pop();
-
       const optionsContainer = document.getElementById("optionsContainer");
       optionsContainer.innerHTML = "";
 
@@ -428,7 +432,6 @@
         document.getElementById("scoreDisplay").textContent = score;
         resultMsg.textContent = "Acertou! Avançando...";
         resultMsg.style.color = "#4ade80";
-
         setTimeout(loadNextQuestion, 1000);
       } else {
         lives--;
@@ -444,8 +447,130 @@
       }
     }
 
+    /* --- LÓGICA DO MODO PÊNALTIS --- */
+    function resetField() {
+      const ball = document.getElementById("ball");
+      const gk = document.getElementById("goalkeeper");
+      ball.className = "ball pos-center";
+      gk.className = "goalkeeper pos-center";
+    }
+
+    function setupPenaltyRound() {
+      resetField();
+      const resultMsg = document.getElementById("result-msg");
+      resultMsg.textContent = "";
+      const optionsContainer = document.getElementById("optionsContainer");
+      optionsContainer.innerHTML = "";
+
+      if (penaltyPhase === 'kicker') {
+        document.getElementById("nationText").textContent = "Sua Vez de Chutar";
+        document.getElementById("playerName").textContent = "VOCÊ É O BATEDOR ⚽";
+        document.getElementById("questionText").textContent = "Escolha o canto para chutar a bola:";
+
+        const sides = [
+          { name: "Esquerda ⬅️", value: "left" },
+          { name: "Centro ⬆️", value: "center" },
+          { name: "Direita ➡️", value: "right" }
+        ];
+
+        sides.forEach(s => {
+          const btn = document.createElement("button");
+          btn.textContent = s.name;
+          btn.onclick = () => shootPenalty(s.value);
+          optionsContainer.appendChild(btn);
+        });
+      } else {
+        document.getElementById("nationText").textContent = "Sua Vez de Defender";
+        document.getElementById("playerName").textContent = "VOCÊ É O GOLEIRO 🧤";
+        document.getElementById("questionText").textContent = "Use as SETAS do teclado (⬅️ ⬆️ ➡️) para saltar!";
+      }
+    }
+
+    function shootPenalty(shotDirection) {
+      const sides = ["left", "center", "right"];
+      const gkDirection = sides[Math.floor(Math.random() * sides.length)];
+
+      const ball = document.getElementById("ball");
+      const gk = document.getElementById("goalkeeper");
+
+      ball.classList.add(`pos-${shotDirection}`, "ball-shot");
+      gk.classList.add(`pos-${gkDirection}`);
+
+      const resultMsg = document.getElementById("result-msg");
+
+      setTimeout(() => {
+        if (shotDirection !== gkDirection) {
+          score += 10;
+          document.getElementById("scoreDisplay").textContent = score;
+          resultMsg.textContent = "GOLAZO! Você marcou!";
+          resultMsg.style.color = "#4ade80";
+        } else {
+          lives--;
+          updateLivesDisplay();
+          resultMsg.textContent = "DEFENDEU! O goleiro pegou seu chute!";
+          resultMsg.style.color = "#f87171";
+        }
+
+        setTimeout(() => {
+          if (lives <= 0) {
+            gameOver();
+          } else {
+            penaltyPhase = 'keeper';
+            setupPenaltyRound();
+          }
+        }, 1500);
+      }, 400);
+    }
+
+    function handleKeyDefend(e) {
+      if (currentMode !== 'penalty' || penaltyPhase !== 'keeper') return;
+
+      let keeperJump = '';
+      if (e.key === 'ArrowLeft') keeperJump = 'left';
+      else if (e.key === 'ArrowUp') keeperJump = 'center';
+      else if (e.key === 'ArrowRight') keeperJump = 'right';
+
+      if (!keeperJump) return;
+
+      const sides = ["left", "center", "right"];
+      const shotDirection = sides[Math.floor(Math.random() * sides.length)];
+
+      const ball = document.getElementById("ball");
+      const gk = document.getElementById("goalkeeper");
+
+      ball.classList.add(`pos-${shotDirection}`, "ball-shot");
+      gk.classList.add(`pos-${keeperJump}`);
+
+      const resultMsg = document.getElementById("result-msg");
+
+      setTimeout(() => {
+        if (keeperJump === shotDirection) {
+          score += 10;
+          document.getElementById("scoreDisplay").textContent = score;
+          resultMsg.textContent = "DEFENDEU! Que grande defesa!";
+          resultMsg.style.color = "#4ade80";
+        } else {
+          lives--;
+          updateLivesDisplay();
+          resultMsg.textContent = "GOL DO ADVERSÁRIO! Você pulou para o lado errado.";
+          resultMsg.style.color = "#f87171";
+        }
+
+        setTimeout(() => {
+          if (lives <= 0) {
+            gameOver();
+          } else {
+            penaltyPhase = 'kicker';
+            setupPenaltyRound();
+          }
+        }, 1500);
+      }, 400);
+    }
+
     function gameOver() {
       clearInterval(timer);
+      window.removeEventListener('keydown', handleKeyDefend);
+      document.getElementById("penaltyField").style.display = "none";
       document.getElementById("gameArea").innerHTML = `
         <h2 style="color: #f87171; margin-bottom: 5px;">FIM DE JOGO</h2>
         <p style="margin-bottom: 20px;">Sua Pontuação Final: <strong>${score} Pts</strong></p>
@@ -455,6 +580,8 @@
 
     function gameWin() {
       clearInterval(timer);
+      window.removeEventListener('keydown', handleKeyDefend);
+      document.getElementById("penaltyField").style.display = "none";
       document.getElementById("gameArea").innerHTML = `
         <h2 style="color: #4ade80; margin-bottom: 5px;">PARABÉNS!</h2>
         <p style="margin-bottom: 20px;">Você respondeu a todas as perguntas!<br>Pontuação: <strong>${score} Pts</strong></p>
