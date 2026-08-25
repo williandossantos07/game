@@ -210,6 +210,10 @@
       </div>
 
       <div class="mode-container">
+        <button onclick="startGame('brasileirao')">🇧🇷 Descubra Brasileirão</button>
+      </div>
+
+      <div class="mode-container">
         <button onclick="startGame('champions')">🏆 Adivinhe o Campeão</button>
       </div>
 
@@ -276,6 +280,47 @@
       { title: "Champions League ⭐", category: "FUTEBOL EUROPEU", question: "Qual destes jogadores GANHOU a Champions League?", correctPlayer: "Erling Haaland", options: ["Erling Haaland", "Zlatan Ibrahimović", "Gianluigi Buffon"] }
     ];
 
+    const brasileiraoData = [
+      { name: "Gabigol", nation: "Brasil 🇧🇷", correctTeam: "Flamengo", teamOptions: ["Flamengo", "Santos", "Palmeiras"] },
+      { name: "Endrick", nation: "Brasil 🇧🇷", correctTeam: "Palmeiras", teamOptions: ["São Paulo", "Palmeiras", "Santos"] },
+      { name: "Hulk", nation: "Brasil 🇧🇷", correctTeam: "Atlético-MG", teamOptions: ["Cruzeiro", "Atlético-MG", "Fluminense"] },
+      { name: "Giorgian De Arrascaeta", nation: "Uruguai 🇺🇾", correctTeam: "Flamengo", teamOptions: ["Cruzeiro", "Flamengo", "Botafogo"] },
+      { name: "Germán Cano", nation: "Argentina 🇦🇷", correctTeam: "Fluminense", teamOptions: ["Vasco da Gama", "Fluminense", "Internacional"] },
+      { name: "Raphael Veiga", nation: "Brasil 🇧🇷", correctTeam: "Palmeiras", teamOptions: ["Athletico-PR", "Palmeiras", "Corinthians"] },
+      { name: "Cássio", nation: "Brasil 🇧🇷", correctTeam: "Corinthians", teamOptions: ["Grêmio", "Corinthians", "Cruzeiro"] },
+      { name: "Yuri Alberto", nation: "Brasil 🇧🇷", correctTeam: "Corinthians", teamOptions: ["Internacional", "Santos", "Corinthians"] },
+      { name: "Paulinho", nation: "Brasil 🇧🇷", correctTeam: "Atlético-MG", teamOptions: ["Vasco da Gama", "Atlético-MG", "Palmeiras"] },
+      { name: "Lucas Moura", nation: "Brasil 🇧🇷", correctTeam: "São Paulo", teamOptions: ["São Paulo", "Corinthians", "Santos"] },
+      { name: "Pedro", nation: "Brasil 🇧🇷", correctTeam: "Flamengo", teamOptions: ["Fluminense", "Flamengo", "Grêmio"] },
+      { name: "Tiquinho Soares", nation: "Brasil 🇧🇷", correctTeam: "Botafogo", teamOptions: ["Porto", "Botafogo", "Flamengo"] },
+      { name: "Luis Suárez", nation: "Uruguai 🇺🇾", correctTeam: "Grêmio", teamOptions: ["Nacional", "Grêmio", "Palmeiras"] },
+      { name: "Enner Valencia", nation: "Equador 🇪🇨", correctTeam: "Internacional", teamOptions: ["Tigres", "Internacional", "Fenerbahçe"] },
+      { name: "Everton Ribeiro", nation: "Brasil 🇧🇷", correctTeam: "Bahia", teamOptions: ["Flamengo", "Cruzeiro", "Bahia"] },
+      { name: "Lucero", nation: "Argentina 🇦🇷", correctTeam: "Fortaleza", teamOptions: ["Colo-Colo", "Fortaleza", "Ceará"] },
+      { name: "Dudu", nation: "Brasil 🇧🇷", correctTeam: "Palmeiras", teamOptions: ["Gremio", "Palmeiras", "Cruzeiro"] },
+      { name: "Gerson", nation: "Brasil 🇧🇷", correctTeam: "Flamengo", teamOptions: ["Fluminense", "Flamengo", "Roma"] },
+      { name: "Gustavo Gómez", nation: "Paraguai 🇵🇾", correctTeam: "Palmeiras", teamOptions: ["AC Milan", "Palmeiras", "Boca Juniors"] },
+      { name: "Pablo Vegetti", nation: "Argentina 🇦🇷", correctTeam: "Vasco da Gama", teamOptions: ["Belgrano", "Vasco da Gama", "Coritiba"] },
+      { name: "Matheus Pereira", nation: "Brasil 🇧🇷", correctTeam: "Cruzeiro", teamOptions: ["Al-Hilal", "Cruzeiro", "Sporting"] },
+      { name: "Estêvão", nation: "Brasil 🇧🇷", correctTeam: "Palmeiras", teamOptions: ["Palmeiras", "Cruzeiro", "Chelsea"] },
+      { name: "Luiz Henrique", nation: "Brasil 🇧🇷", correctTeam: "Botafogo", teamOptions: ["Fluminense", "Real Betis", "Botafogo"] },
+      { name: "Thiago Silva", nation: "Brasil 🇧🇷", correctTeam: "Fluminense", teamOptions: ["Fluminense", "Chelsea", "PSG"] },
+      { name: "Philippe Coutinho", nation: "Brasil 🇧🇷", correctTeam: "Vasco da Gama", teamOptions: ["Vasco da Gama", "Aston Villa", "Liverpool"] },
+      { name: "Memphis Depay", nation: "Holanda 🇳🇱", correctTeam: "Corinthians", teamOptions: ["Atlético de Madrid", "Corinthians", "Lyon"] },
+      { name: "Dimitri Payet", nation: "França 🇫🇷", correctTeam: "Vasco da Gama", teamOptions: ["Marseille", "Vasco da Gama", "West Ham"] },
+      { name: "Yeferson Soteldo", nation: "Venezuela 🇻🇪", correctTeam: "Grêmio", teamOptions: ["Santos", "Grêmio", "Tigres"] },
+      { name: "Alan Patrick", nation: "Brasil 🇧🇷", correctTeam: "Internacional", teamOptions: ["Shakhtar Donetsk", "Internacional", "Flamengo"] },
+      { name: "Helinho", nation: "Brasil 🇧🇷", correctTeam: "Red Bull Bragantino", teamOptions: ["São Paulo", "Red Bull Bragantino", "Toluca"] },
+      { name: "Erick Pulgar", nation: "Chile 🇨🇱", correctTeam: "Flamengo", teamOptions: ["Fiorentina", "Flamengo", "Galatasaray"] },
+      { name: "Richard Ríos", nation: "Colômbia 🇨🇴", correctTeam: "Palmeiras", teamOptions: ["Guarani", "Palmeiras", "Flamengo"] },
+      { name: "Jhon Arias", nation: "Colômbia 🇨🇴", correctTeam: "Fluminense", teamOptions: ["América de Cali", "Fluminense", "Santa Fe"] },
+      { name: "Júnior Santos", nation: "Brasil 🇧🇷", correctTeam: "Botafogo", teamOptions: ["Fortaleza", "Botafogo", "Sanfrecce Hiroshima"] },
+      { name: "Diego Costa", nation: "Espanha 🇪🇸", correctTeam: "Grêmio", teamOptions: ["Botafogo", "Grêmio", "Wolverhampton"] },
+      { name: "Agustín Marchesín", nation: "Argentina 🇦🇷", correctTeam: "Grêmio", teamOptions: ["Celta de Vigo", "Grêmio", "América"] },
+      { name: "Calleri", nation: "Argentina 🇦🇷", correctTeam: "São Paulo", teamOptions: ["Boca Juniors", "São Paulo", "Espanyol"] },
+      { name: "Hugo Souza", nation: "Brasil 🇧🇷", correctTeam: "Corinthians", teamOptions: ["Flamengo", "Chaves", "Corinthians"] }
+    ];
+
     let currentMode = '';
     let availableQuestions = [];
     let currentQuestion = null;
@@ -307,6 +352,11 @@
         lives = 3;
         timeLimit = 15;
         availableQuestions = shuffle([...infiniteData]);
+        document.getElementById("levelContainer").style.display = "inline";
+      } else if (mode === 'brasileirao') {
+        lives = 1;
+        timeLimit = 10;
+        availableQuestions = shuffle([...brasileiraoData]);
         document.getElementById("levelContainer").style.display = "inline";
       } else if (mode === 'champions') {
         lives = 5;
@@ -404,6 +454,16 @@
         
         options = shuffle([...currentQuestion.teamOptions]);
         correctAnswer = currentQuestion.correctTeam;
+      } else if (currentMode === 'brasileirao') {
+        level = 38 - availableQuestions.length;
+        document.getElementById("levelDisplay").textContent = `${level}/38`;
+
+        document.getElementById("nationText").textContent = "DESCUBRA BRASILEIRÃO";
+        document.getElementById("playerName").textContent = currentQuestion.name;
+        document.getElementById("questionText").textContent = `Qual é o clube de ${currentQuestion.name}?`;
+
+        options = shuffle([...currentQuestion.teamOptions]);
+        correctAnswer = currentQuestion.correctTeam;
       } else {
         document.getElementById("nationText").textContent = currentQuestion.category;
         document.getElementById("playerName").textContent = currentQuestion.title;
@@ -493,8 +553,8 @@
       const ball = document.getElementById("ball");
       const gk = document.getElementById("goalkeeper");
 
-      ball.classList.add(`pos-${shotDirection}`, "ball-shot");
-      gk.classList.add(`pos-${gkDirection}`);
+      ball.className = `ball pos-${shotDirection} ball-shot`;
+      gk.className = `goalkeeper pos-${gkDirection}`;
 
       const resultMsg = document.getElementById("result-msg");
 
@@ -538,8 +598,8 @@
       const ball = document.getElementById("ball");
       const gk = document.getElementById("goalkeeper");
 
-      ball.classList.add(`pos-${shotDirection}`, "ball-shot");
-      gk.classList.add(`pos-${keeperJump}`);
+      ball.className = `ball pos-${shotDirection} ball-shot`;
+      gk.className = `goalkeeper pos-${keeperJump}`;
 
       const resultMsg = document.getElementById("result-msg");
 
